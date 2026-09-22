@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="情绪日记与自我关怀 —— 记录情绪、洞察触发、获得低门槛自助调节方案" />
+  <title>情绪日记 · 自我关怀</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <p class="brand-mark">Mood Haven</p>
+        <h1>情绪日记与自我关怀</h1>
+        <p class="brand-sub">记录波动 · 看清触发 · 轻轻调节</p>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="主导航">
+        <button type="button" class="tab is-active" data-tab="checkin" role="tab" aria-selected="true">今日记录</button>
+        <button type="button" class="tab" data-tab="insight" role="tab" aria-selected="false">触发洞察</button>
+        <button type="button" class="tab" data-tab="care" role="tab" aria-selected="false">自助方案</button>
+        <button type="button" class="tab" data-tab="history" role="tab" aria-selected="false">日记</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- 今日记录 -->
+      <section class="panel is-active" id="panel-checkin" role="tabpanel">
+        <div class="panel-head">
+          <h2>此刻你感觉如何？</h2>
+          <p>选一个情绪，标上强度，写下可能的触发点。</p>
+        </div>
+
+        <div class="emotion-grid" id="emotionGrid" role="listbox" aria-label="选择情绪"></div>
+
+        <label class="field">
+          <span class="field-label">情绪强度 <strong id="intensityValue">5</strong>/10</span>
+          <input type="range" id="intensity" min="1" max="10" value="5" />
+        </label>
+
+        <fieldset class="field">
+          <legend class="field-label">可能的触发因素（可多选）</legend>
+          <div class="chip-row" id="triggerChips"></div>
+        </fieldset>
+
+        <label class="field">
+          <span class="field-label">想写点什么（可选）</span>
+          <textarea id="note" rows="3" placeholder="发生了什么？身体有什么感觉？"></textarea>
+        </label>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="saveBtn">保存这条日记</button>
+          <p class="hint" id="saveHint" hidden></p>
+        </div>
+      </section>
+
+      <!-- 触发洞察 -->
+      <section class="panel" id="panel-insight" role="tabpanel" hidden>
+        <div class="panel-head">
+          <h2>你的情绪触发画像</h2>
+          <p>基于本地日记自动统计，数据只留在你的浏览器。</p>
+        </div>
+        <div class="stat-row" id="statRow"></div>
+        <article class="card insight-card">
+          <h3>高频触发</h3>
+          <ul class="rank-list" id="triggerRank"></ul>
+        </article>
+        <article class="card insight-card">
+          <h3>情绪分布</h3>
+          <div class="bar-list" id="emotionBars"></div>
+        </article>
+        <article class="card insight-card" id="insightStory">
+          <h3>一句洞察</h3>
+          <p class="story" id="insightText">先记录几条，洞察会出现在这里。</p>
+        </article>
+      </section>
+
+      <!-- 自助方案 -->
+      <section class="panel" id="panel-care" role="tabpanel" hidden>
+        <div class="panel-head">
+          <h2>此刻适合你的调节</h2>
+          <p>根据最近一次记录推荐冥想、音乐与身体练习。</p>
+        </div>
+        <div class="care-context" id="careContext"></div>
+        <div class="care-grid" id="careGrid"></div>
+      </section>
+
+      <!-- 历史 -->
+      <section class="panel" id="panel-history" role="tabpanel" hidden>
+        <div class="panel-head">
+          <h2>情绪日记</h2>
+          <p>从近到远浏览你留下的痕迹。</p>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>本工具不能替代专业心理咨询。若持续低落或有自伤念头，请寻求身边人或专业帮助。</p>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
