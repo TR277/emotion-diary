@@ -3,39 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="情绪日记与自我关怀 —— 记录情绪、洞察触发、获得低门槛自助调节方案" />
-  <title>情绪日记 · 自我关怀</title>
+  <meta name="theme-color" content="#FFBE00" />
+  <meta name="description" content="情绪日记与自我关怀 —— 记录情绪、洞察触发、冥想音乐运动自助调节" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Mood Haven · 情绪日记</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="bg-glow" aria-hidden="true"></div>
-  <div class="app">
-    <header class="top">
-      <div class="brand">
-        <p class="brand-mark">Mood Haven</p>
-        <h1>情绪日记与自我关怀</h1>
-        <p class="brand-sub">记录波动 · 看清触发 · 轻轻调节</p>
-      </div>
-      <nav class="tabs" role="tablist" aria-label="主导航">
-        <button type="button" class="tab is-active" data-tab="checkin" role="tab" aria-selected="true">今日记录</button>
-        <button type="button" class="tab" data-tab="insight" role="tab" aria-selected="false">触发洞察</button>
-        <button type="button" class="tab" data-tab="care" role="tab" aria-selected="false">自助方案</button>
-        <button type="button" class="tab" data-tab="history" role="tab" aria-selected="false">日记</button>
-      </nav>
+  <div class="phone-shell">
+    <header class="page-top">
+      <p class="eyebrow" id="greetingEyebrow">今天也辛苦了</p>
+      <h1 class="brand-title">Mood Haven</h1>
+      <p class="brand-sub">情绪日记与自我关怀</p>
     </header>
 
-    <main>
+    <main class="panels">
       <!-- 今日记录 -->
-      <section class="panel is-active" id="panel-checkin" role="tabpanel">
-        <div class="panel-head">
-          <h2>此刻你感觉如何？</h2>
-          <p>选一个情绪，标上强度，写下可能的触发点。</p>
+      <section class="panel is-active" id="panel-checkin" role="tabpanel" aria-labelledby="nav-checkin">
+        <div class="hero-card">
+          <div class="hero-orb" aria-hidden="true"></div>
+          <p class="hero-label">此刻感受</p>
+          <p class="hero-value" id="heroEmotion">平静</p>
+          <p class="hero-hint">选情绪 · 标强度 · 语音或文字记下触发</p>
         </div>
 
-        <div class="emotion-grid" id="emotionGrid" role="listbox" aria-label="选择情绪"></div>
+        <div class="section-block">
+          <h2 class="section-title">你感觉如何？</h2>
+          <div class="emotion-grid" id="emotionGrid" role="listbox" aria-label="选择情绪"></div>
+        </div>
 
         <label class="field">
           <span class="field-label">情绪强度 <strong id="intensityValue">5</strong>/10</span>
@@ -43,66 +41,126 @@
         </label>
 
         <fieldset class="field">
-          <legend class="field-label">可能的触发因素（可多选）</legend>
+          <legend class="field-label">可能的触发因素</legend>
           <div class="chip-row" id="triggerChips"></div>
         </fieldset>
 
-        <label class="field">
-          <span class="field-label">想写点什么（可选）</span>
-          <textarea id="note" rows="3" placeholder="发生了什么？身体有什么感觉？"></textarea>
-        </label>
-
-        <div class="actions">
-          <button type="button" class="btn btn-primary" id="saveBtn">保存这条日记</button>
-          <p class="hint" id="saveHint" hidden></p>
+        <div class="field">
+          <div class="field-label-row">
+            <span class="field-label">想写点什么</span>
+            <button type="button" class="voice-btn" id="voiceBtn" aria-pressed="false">
+              <span class="voice-dot" aria-hidden="true"></span>
+              <span id="voiceBtnLabel">语音输入</span>
+            </button>
+          </div>
+          <textarea id="note" rows="3" placeholder="发生了什么？身体有什么感觉？也可点右上角语音说说。"></textarea>
+          <p class="voice-status" id="voiceStatus" hidden></p>
         </div>
+
+        <button type="button" class="btn btn-hero" id="saveBtn">保存这条日记</button>
+        <p class="hint" id="saveHint" hidden></p>
       </section>
 
       <!-- 触发洞察 -->
-      <section class="panel" id="panel-insight" role="tabpanel" hidden>
+      <section class="panel" id="panel-insight" role="tabpanel" hidden aria-labelledby="nav-insight">
         <div class="panel-head">
-          <h2>你的情绪触发画像</h2>
-          <p>基于本地日记自动统计，数据只留在你的浏览器。</p>
+          <p class="eyebrow">Insight</p>
+          <h2>情绪触发画像</h2>
+          <p class="muted">数据只留在本机，帮你看见重复出现的压力源。</p>
         </div>
+
+        <div class="hero-card hero-card-compact" id="insightHero">
+          <div class="hero-orb" aria-hidden="true"></div>
+          <p class="hero-label">累计记录</p>
+          <p class="hero-value"><span id="statCount">0</span> <small>条</small></p>
+        </div>
+
         <div class="stat-row" id="statRow"></div>
-        <article class="card insight-card">
+
+        <article class="soft-card">
           <h3>高频触发</h3>
           <ul class="rank-list" id="triggerRank"></ul>
         </article>
-        <article class="card insight-card">
+
+        <article class="soft-card">
           <h3>情绪分布</h3>
           <div class="bar-list" id="emotionBars"></div>
         </article>
-        <article class="card insight-card" id="insightStory">
+
+        <article class="soft-card insight-story">
           <h3>一句洞察</h3>
           <p class="story" id="insightText">先记录几条，洞察会出现在这里。</p>
         </article>
       </section>
 
       <!-- 自助方案 -->
-      <section class="panel" id="panel-care" role="tabpanel" hidden>
+      <section class="panel" id="panel-care" role="tabpanel" hidden aria-labelledby="nav-care">
         <div class="panel-head">
+          <p class="eyebrow">Self-care</p>
           <h2>此刻适合你的调节</h2>
-          <p>根据最近一次记录推荐冥想、音乐与身体练习。</p>
+          <p class="muted" id="careContext">根据最近一次记录推荐冥想、音乐与身体练习。</p>
         </div>
-        <div class="care-context" id="careContext"></div>
-        <div class="care-grid" id="careGrid"></div>
+
+        <div class="care-scroll" id="careGrid"></div>
+
+        <article class="soft-card music-lab">
+          <div class="music-lab-head">
+            <div>
+              <h3>专属疗愈音乐</h3>
+              <p class="muted">基于当前情绪，用 AI 生成一段舒缓纯音乐。</p>
+            </div>
+          </div>
+          <div class="music-actions">
+            <button type="button" class="btn btn-soft" id="genMusicBtn">生成疗愈音乐</button>
+          </div>
+          <p class="voice-status" id="musicStatus" hidden></p>
+          <audio id="musicPlayer" controls class="music-player" hidden></audio>
+        </article>
       </section>
 
       <!-- 历史 -->
-      <section class="panel" id="panel-history" role="tabpanel" hidden>
+      <section class="panel" id="panel-history" role="tabpanel" hidden aria-labelledby="nav-history">
         <div class="panel-head">
+          <p class="eyebrow">Journal</p>
           <h2>情绪日记</h2>
-          <p>从近到远浏览你留下的痕迹。</p>
+          <p class="muted">从近到远，回看你留下的痕迹。</p>
         </div>
         <div class="timeline" id="timeline"></div>
       </section>
     </main>
 
-    <footer class="foot">
-      <p>本工具不能替代专业心理咨询。若持续低落或有自伤念头，请寻求身边人或专业帮助。</p>
-    </footer>
+    <p class="disclaimer">本工具不能替代专业心理咨询。若持续低落或有自伤念头，请寻求身边人或专业帮助。</p>
+
+    <nav class="bottom-nav" role="tablist" aria-label="主导航">
+      <button type="button" class="nav-item is-active" id="nav-checkin" data-tab="checkin" role="tab" aria-selected="true">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </span>
+        <span>记录</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-insight" data-tab="insight" role="tab" aria-selected="false">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg>
+        </span>
+        <span>洞察</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-care" data-tab="care" role="tab" aria-selected="false">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
+        </span>
+        <span>关怀</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-history" data-tab="history" role="tab" aria-selected="false">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </span>
+        <span>日记</span>
+      </button>
+    </nav>
   </div>
-  <script src="app.js"></script>
+
+  <script src="js/speech-xfyun.js"></script>
+  <script src="js/mureka-music.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
