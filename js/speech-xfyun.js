@@ -69,7 +69,7 @@ class XfyunIatRecorder {
         throw new Error("录音太短，请多说几个字");
       }
 
-      const resp = await fetch("/api/xfyun/transcribe", {
+      const resp = await fetch(apiUrl("/api/xfyun/transcribe"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ pcm: arrayBufferToBase64(pcmBuffer) }),
@@ -161,7 +161,7 @@ function arrayBufferToBase64(buffer) {
 
 async function checkBackendAvailable() {
   try {
-    const r = await fetch("/api/health", { signal: AbortSignal.timeout(3000) });
+    const r = await fetch(apiUrl("/api/health"), { signal: AbortSignal.timeout(4000) });
     return r.ok;
   } catch {
     return false;

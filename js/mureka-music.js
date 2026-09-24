@@ -5,7 +5,7 @@ async function generateEmotionMusic({ emotionId, note = "", musicType = "instrum
   const say = onStatus || (() => {});
   say("正在提交生成任务…");
 
-  const resp = await fetch("/api/mureka/generate", {
+  const resp = await fetch(apiUrl("/api/mureka/generate"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -30,7 +30,9 @@ async function generateEmotionMusic({ emotionId, note = "", musicType = "instrum
   const maxTries = 90;
   for (let i = 0; i < maxTries; i++) {
     await sleep(4000);
-    const q = await fetch(`/api/mureka/query/${encodeURIComponent(taskId)}?music_type=${musicType}`);
+    const q = await fetch(
+      apiUrl(`/api/mureka/query/${encodeURIComponent(taskId)}?music_type=${musicType}`)
+    );
     const qd = await q.json().catch(() => ({}));
     if (!q.ok) {
       throw new Error(typeof qd.error === "string" ? qd.error : "查询任务失败");

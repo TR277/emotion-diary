@@ -64,4 +64,44 @@ PORT=8080
 
 ## 部署说明
 
-语音与音乐 API 需要 Python 后端。纯静态托管（如仅 Vercel 静态）无法调用讯飞 / Mureka；请将本服务部署到支持 Python 的环境（Railway、Render、自有服务器等），或前后端分离部署。
+### 为什么 Vercel 上音乐会提示「后端未启动」？
+
+Vercel 当前只托管了静态页面（HTML/CSS/JS），**不会运行** `server.py`。  
+语音听写（讯飞）和疗愈音乐（Mureka）必须有一个常驻的 Python 服务。
+
+### 推荐架构
+
+| 部分 | 放哪里 |
+|------|--------|
+| 前端（页面） | Vercel |
+| 后端（`server.py`） | [Render](https://render.com) / Railway 等 |
+
+### 后端部署到 Render（免费档可用）
+
+1. 把含 `server.py` 的仓库推到 GitHub  
+2. Render → **New → Web Service** → 选该仓库  
+3. 设置：
+   - Build: `pip install -r requirements.txt`
+   - Start: 自动读 `Procfile`（`gunicorn server:app ...`）
+4. 在 Render **Environment** 填入与本地 `.env` 相同的变量：
+   - `XFYUN_APPID` / `XFYUN_API_KEY` / `XFYUN_API_SECRET`
+   - `MUREKA_API_KEY`
+5. 部署完成后会得到类似 `https://xxx.onrender.com` 的地址  
+6. 打开前端 `index.html`，改成：
+
+```html
+window.API_BASE = "https://xxx.onrender.com";
+```
+
+7. 重新上传/部署 Vercel 前端  
+
+浏览器访问 `/api/health` 若返回 `{"status":"ok"}`，说明后端正常。
+
+### 本地完整功能
+
+```bash
+python server.py
+# 打开 http://127.0.0.1:8080
+```
+
+此时前后端同域，`API_BASE` 保持空字符串即可。

@@ -486,7 +486,8 @@ async function toggleVoice() {
     const ok = window.checkBackendAvailable ? await window.checkBackendAvailable() : false;
     if (!ok) {
       status.hidden = false;
-      status.textContent = "后端未启动：请运行 python server.py 后再用语音";
+      status.textContent =
+        "语音需要 Python 后端。本地请运行 python server.py；若用 Vercel，请在 index.html 配置 window.API_BASE";
       return;
     }
 
@@ -529,7 +530,8 @@ async function handleGenerateMusic() {
   const ok = window.checkBackendAvailable ? await window.checkBackendAvailable() : false;
   if (!ok) {
     status.hidden = false;
-    status.textContent = "后端未启动：请运行 python server.py";
+    status.textContent =
+      "音乐生成需要 Python 后端。本地请运行 python server.py；若用 Vercel，请在 index.html 配置 window.API_BASE";
     return;
   }
 
