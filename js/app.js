@@ -311,6 +311,7 @@ function renderHome() {
       sub: "冥想 · 低门槛调节",
       cls: "",
       img: "assets/meditation.jpg",
+      href: "",
     },
     {
       rank: "2",
@@ -318,13 +319,15 @@ function renderHome() {
       sub: "运动 · 释放紧张",
       cls: "",
       img: "assets/exercise.jpg",
+      href: "",
     },
     {
       rank: "3",
-      title: "打开 Spotify 放松",
-      sub: "音乐 · 外链播放",
-      cls: "feature-card-music",
-      img: "",
+      title: "打开音乐放松",
+      sub: "音乐 · 在 Spotify 收听",
+      cls: "",
+      img: "assets/music-starboy.png",
+      href: "https://open.spotify.com/search/Starboy%20The%20Weeknd",
     },
   ];
 
@@ -332,15 +335,18 @@ function renderHome() {
     .map((f) => {
       const img = f.img ? `<img src="${f.img}" alt="" />` : "";
       const extra = f.img ? "" : f.cls || "feature-card-tone";
-      return `<article class="feature-card ${extra}">
+      const inner = `
         ${img}
         <div class="feature-fade"></div>
         <p class="feature-rank">${f.rank}</p>
         <div class="feature-body">
           <h3>${f.title}</h3>
           <p>${f.sub}</p>
-        </div>
-      </article>`;
+        </div>`;
+      if (f.href) {
+        return `<a class="feature-card ${extra}" href="${f.href}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
+      }
+      return `<article class="feature-card ${extra}">${inner}</article>`;
     })
     .join("");
 

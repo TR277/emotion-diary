@@ -272,6 +272,9 @@ a {
   border-radius: 1.15rem;
   background: #222;
   box-shadow: var(--shadow-soft);
+  color: inherit;
+  text-decoration: none;
+  display: block;
 }
 
 .feature-card img {
