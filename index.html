@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#FFBE00" />
+  <meta name="theme-color" content="#0a0a0a" />
   <meta name="description" content="情绪日记与自我关怀 —— 记录情绪、洞察触发、冥想音乐运动自助调节" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Mood Haven · 情绪日记</title>
@@ -14,15 +14,108 @@
 </head>
 <body>
   <div class="phone-shell">
-    <header class="page-top">
-      <p class="eyebrow" id="greetingEyebrow">今天也辛苦了</p>
-      <h1 class="brand-title">Mood Haven</h1>
-      <p class="brand-sub">情绪日记与自我关怀</p>
-    </header>
-
     <main class="panels">
+      <!-- 首页 -->
+      <section class="panel is-active" id="panel-home" role="tabpanel" aria-labelledby="nav-home">
+        <div class="home-top-glow" aria-hidden="true"></div>
+
+        <header class="home-header">
+          <p class="home-kicker" id="greetingEyebrow">今天也辛苦了</p>
+          <h1 class="home-title">Mood Haven</h1>
+          <p class="home-summary" id="homeSummary">先照顾好情绪，再面对学业、职场与社交。</p>
+          <button type="button" class="checkin-entry" id="goCheckinBtn">
+            <span class="checkin-entry-label">今日情绪记录</span>
+            <span class="checkin-entry-sub">选情绪 · 写触发 · 语音也可以</span>
+            <span class="checkin-entry-arrow" aria-hidden="true">→</span>
+          </button>
+        </header>
+
+        <section class="home-section">
+          <div class="section-row">
+            <h2>为你推荐</h2>
+          </div>
+          <div class="feature-rail" id="featureRail"></div>
+        </section>
+
+        <section class="home-section">
+          <div class="section-row">
+            <h2>音乐推荐</h2>
+            <a class="section-link" href="https://open.spotify.com/search/calm%20ambient" target="_blank" rel="noopener noreferrer">在 Spotify 打开</a>
+          </div>
+          <div class="song-list" id="songList"></div>
+        </section>
+
+        <section class="home-section">
+          <div class="section-row">
+            <h2>运动</h2>
+          </div>
+          <div class="media-rail">
+            <article class="media-card media-card-tall">
+              <img src="assets/exercise.jpg" alt="" />
+              <div class="media-card-fade"></div>
+              <div class="media-card-body">
+                <p class="media-rank">01</p>
+                <h3>轻跑与慢走</h3>
+                <p>8–15 分钟 · 降低紧张唤起</p>
+              </div>
+            </article>
+            <article class="media-card media-card-tall media-card-tone">
+              <div class="media-card-fade"></div>
+              <div class="media-card-body">
+                <p class="media-rank">02</p>
+                <h3>肩颈拉伸</h3>
+                <p>5 分钟 · 适合久坐后</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="home-section">
+          <div class="section-row">
+            <h2>冥想</h2>
+          </div>
+          <div class="media-rail">
+            <article class="media-card media-card-tall">
+              <img src="assets/meditation.jpg" alt="" />
+              <div class="media-card-fade"></div>
+              <div class="media-card-body">
+                <p class="media-rank">01</p>
+                <h3>草地式放松</h3>
+                <p>躺下 · 感受呼吸与身体重量</p>
+              </div>
+            </article>
+            <article class="media-card media-card-tall media-card-meditate">
+              <div class="media-card-fade"></div>
+              <div class="media-card-body">
+                <p class="media-rank">02</p>
+                <h3>三分钟呼吸</h3>
+                <p>吸 4 · 呼 6 · 重复八轮</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="home-section home-ai">
+          <article class="ai-music-card">
+            <div>
+              <h2>AI 疗愈音乐</h2>
+              <p>根据最近情绪，生成一段舒缓纯音乐</p>
+            </div>
+            <button type="button" class="btn btn-hero" id="genMusicBtn">生成音乐</button>
+            <p class="voice-status" id="musicStatus" hidden></p>
+            <audio id="musicPlayer" controls class="music-player" hidden></audio>
+          </article>
+        </section>
+      </section>
+
       <!-- 今日记录 -->
-      <section class="panel is-active" id="panel-checkin" role="tabpanel" aria-labelledby="nav-checkin">
+      <section class="panel" id="panel-checkin" role="tabpanel" hidden aria-labelledby="nav-checkin">
+        <div class="panel-head">
+          <p class="eyebrow">Check-in</p>
+          <h2>此刻你感觉如何？</h2>
+          <p class="muted">选一个情绪，标上强度，写下可能的触发点。</p>
+        </div>
+
         <div class="hero-card">
           <div class="hero-orb" aria-hidden="true"></div>
           <p class="hero-label">此刻感受</p>
@@ -31,7 +124,7 @@
         </div>
 
         <div class="section-block">
-          <h2 class="section-title">你感觉如何？</h2>
+          <h2 class="section-title">选择情绪</h2>
           <div class="emotion-grid" id="emotionGrid" role="listbox" aria-label="选择情绪"></div>
         </div>
 
@@ -53,7 +146,7 @@
               <span id="voiceBtnLabel">语音输入</span>
             </button>
           </div>
-          <textarea id="note" rows="3" placeholder="发生了什么？身体有什么感觉？也可点右上角语音说说。"></textarea>
+          <textarea id="note" rows="3" placeholder="发生了什么？身体有什么感觉？"></textarea>
           <p class="voice-status" id="voiceStatus" hidden></p>
         </div>
 
@@ -93,31 +186,6 @@
         </article>
       </section>
 
-      <!-- 自助方案 -->
-      <section class="panel" id="panel-care" role="tabpanel" hidden aria-labelledby="nav-care">
-        <div class="panel-head">
-          <p class="eyebrow">Self-care</p>
-          <h2>此刻适合你的调节</h2>
-          <p class="muted" id="careContext">根据最近一次记录推荐冥想、音乐与身体练习。</p>
-        </div>
-
-        <div class="care-scroll" id="careGrid"></div>
-
-        <article class="soft-card music-lab">
-          <div class="music-lab-head">
-            <div>
-              <h3>专属疗愈音乐</h3>
-              <p class="muted">基于当前情绪，用 AI 生成一段舒缓纯音乐。</p>
-            </div>
-          </div>
-          <div class="music-actions">
-            <button type="button" class="btn btn-soft" id="genMusicBtn">生成疗愈音乐</button>
-          </div>
-          <p class="voice-status" id="musicStatus" hidden></p>
-          <audio id="musicPlayer" controls class="music-player" hidden></audio>
-        </article>
-      </section>
-
       <!-- 历史 -->
       <section class="panel" id="panel-history" role="tabpanel" hidden aria-labelledby="nav-history">
         <div class="panel-head">
@@ -132,7 +200,13 @@
     <p class="disclaimer">本工具不能替代专业心理咨询。若持续低落或有自伤念头，请寻求身边人或专业帮助。</p>
 
     <nav class="bottom-nav" role="tablist" aria-label="主导航">
-      <button type="button" class="nav-item is-active" id="nav-checkin" data-tab="checkin" role="tab" aria-selected="true">
+      <button type="button" class="nav-item is-active" id="nav-home" data-tab="home" role="tab" aria-selected="true">
+        <span class="nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+        </span>
+        <span>首页</span>
+      </button>
+      <button type="button" class="nav-item" id="nav-checkin" data-tab="checkin" role="tab" aria-selected="false">
         <span class="nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         </span>
@@ -144,12 +218,6 @@
         </span>
         <span>洞察</span>
       </button>
-      <button type="button" class="nav-item" id="nav-care" data-tab="care" role="tab" aria-selected="false">
-        <span class="nav-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>
-        </span>
-        <span>关怀</span>
-      </button>
       <button type="button" class="nav-item" id="nav-history" data-tab="history" role="tab" aria-selected="false">
         <span class="nav-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
@@ -160,7 +228,6 @@
   </div>
 
   <script>
-    // Vercel 静态前端 → Render Python 后端
     window.API_BASE = "https://emotion-diary-e53q.onrender.com";
   </script>
   <script src="js/config.js"></script>

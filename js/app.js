@@ -241,6 +241,33 @@ function formatTime(ts) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+const SPOTIFY_SONGS = [
+  {
+    title: "Weightless",
+    artist: "Marconi Union · 减压环境音",
+    art: "art-1",
+    url: "https://open.spotify.com/search/Weightless%20Marconi%20Union",
+  },
+  {
+    title: "Experience",
+    artist: "Ludovico Einaudi · 钢琴",
+    art: "art-2",
+    url: "https://open.spotify.com/search/Experience%20Ludovico%20Einaudi",
+  },
+  {
+    title: "Spiegel im Spiegel",
+    artist: "Arvo Pärt · 极简静心",
+    art: "art-3",
+    url: "https://open.spotify.com/search/Spiegel%20im%20Spiegel",
+  },
+  {
+    title: "Calm Piano",
+    artist: "精选歌单 · 专注与放松",
+    art: "art-4",
+    url: "https://open.spotify.com/search/calm%20piano%20playlist",
+  },
+];
+
 function updateGreeting() {
   const h = new Date().getHours();
   let text = "今天也辛苦了";
@@ -249,6 +276,89 @@ function updateGreeting() {
   else if (h < 19) text = "下午的压力可以放下一点";
   else text = "夜晚适合温柔地收束一天";
   document.getElementById("greetingEyebrow").textContent = text;
+}
+
+function updateHomeSummary() {
+  const el = document.getElementById("homeSummary");
+  const entries = loadEntries();
+  if (!entries.length) {
+    el.textContent = "先照顾好情绪，再面对学业、职场与社交。点下方开始今日记录。";
+    return;
+  }
+  const latest = entries[0];
+  const emotion = emotionById(latest.emotionId);
+  const monthCount = entries.filter((e) => {
+    const d = new Date(e.createdAt);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  el.textContent = `本月已记录 ${monthCount} 次。最近一次是「${emotion.name}」· 强度 ${latest.intensity}/10。`;
+}
+
+function renderHome() {
+  updateHomeSummary();
+
+  const rail = document.getElementById("featureRail");
+  const entries = loadEntries();
+  const latest = entries[0];
+  const emotionId = latest?.emotionId || selectedEmotion;
+  const pack = CARE_LIBRARY[emotionId] || CARE_LIBRARY.calm;
+
+  const features = [
+    {
+      rank: "1",
+      title: pack.plans[0]?.title || "三分钟呼吸",
+      sub: "冥想 · 低门槛调节",
+      cls: "",
+      img: "assets/meditation.jpg",
+    },
+    {
+      rank: "2",
+      title: pack.plans[2]?.title || "轻运动",
+      sub: "运动 · 释放紧张",
+      cls: "",
+      img: "assets/exercise.jpg",
+    },
+    {
+      rank: "3",
+      title: "打开 Spotify 放松",
+      sub: "音乐 · 外链播放",
+      cls: "feature-card-music",
+      img: "",
+    },
+  ];
+
+  rail.innerHTML = features
+    .map((f) => {
+      const img = f.img ? `<img src="${f.img}" alt="" />` : "";
+      const extra = f.img ? "" : f.cls || "feature-card-tone";
+      return `<article class="feature-card ${extra}">
+        ${img}
+        <div class="feature-fade"></div>
+        <p class="feature-rank">${f.rank}</p>
+        <div class="feature-body">
+          <h3>${f.title}</h3>
+          <p>${f.sub}</p>
+        </div>
+      </article>`;
+    })
+    .join("");
+
+  const list = document.getElementById("songList");
+  list.innerHTML = SPOTIFY_SONGS.map(
+    (s, i) => `
+    <a class="song-item" href="${s.url}" target="_blank" rel="noopener noreferrer">
+      <span class="song-rank">${i + 1}</span>
+      <span class="song-art ${s.art}" aria-hidden="true">SP</span>
+      <span class="song-meta">
+        <strong>${s.title}</strong>
+        <span>${s.artist}</span>
+      </span>
+      <span class="spotify-badge" aria-label="在 Spotify 打开">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.52 17.34c-.24.36-.66.48-1.02.24-2.82-1.74-6.36-2.1-10.56-1.14-.42.12-.78-.18-.9-.54-.12-.42.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.48.66.3 1.02zm1.44-3.18c-.3.42-.84.6-1.26.3-3.24-1.98-8.16-2.58-11.94-1.38-.48.12-.96-.12-1.08-.6-.12-.48.12-.96.6-1.08 4.38-1.32 9.76-.66 13.4 1.62.42.24.54.84.28 1.14zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.3c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.48-1.02.66-1.56.36z"/></svg>
+      </span>
+    </a>`
+  ).join("");
 }
 
 function updateHeroEmotion() {
@@ -288,8 +398,8 @@ function switchTab(tab) {
     panel.hidden = !on;
   });
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (tab === "home") renderHome();
   if (tab === "insight") renderInsight();
-  if (tab === "care") renderCare();
   if (tab === "history") renderHistory();
 }
 
@@ -310,13 +420,13 @@ function saveEntry() {
 
   const hint = document.getElementById("saveHint");
   hint.hidden = false;
-  hint.textContent = "已保存。可到「关怀」看看冥想、音乐与运动方案。";
+  hint.textContent = "已保存。回首页可看推荐与疗愈音乐。";
   selectedTriggers = new Set();
   document.getElementById("note").value = "";
   renderTriggers();
-  renderCare();
+  renderHome();
 
-  setTimeout(() => switchTab("care"), 450);
+  setTimeout(() => switchTab("home"), 450);
 }
 
 function renderInsight() {
@@ -395,32 +505,6 @@ function renderInsight() {
   } else {
     story.textContent = `你最近较常感到「${topEmotion.name}」。试着在记录时补上触发因素，洞察会更清晰。`;
   }
-}
-
-function renderCare() {
-  const entries = loadEntries();
-  const latest = entries[0];
-  const emotionId = latest?.emotionId || selectedEmotion;
-  const emotion = emotionById(emotionId);
-  const pack = CARE_LIBRARY[emotionId] || CARE_LIBRARY.calm;
-  const context = document.getElementById("careContext");
-  const grid = document.getElementById("careGrid");
-
-  context.textContent = latest
-    ? `基于最近一次：${emotion.name} · 强度 ${latest.intensity}/10。${pack.context}`
-    : `还没有日记，先按当前选择的「${emotion.name}」给你一套通用方案。${pack.context}`;
-
-  grid.innerHTML = pack.plans
-    .map(
-      (p) => `
-    <article class="care-card">
-      <span class="care-tag">${p.tag}</span>
-      <h3>${p.title}</h3>
-      <p>${p.desc}</p>
-      <ol class="care-steps">${p.steps.map((s) => `<li>${s}</li>`).join("")}</ol>
-    </article>`
-    )
-    .join("");
 }
 
 function renderHistory() {
@@ -572,6 +656,8 @@ function bind() {
     if (tab) switchTab(tab.dataset.tab);
   });
 
+  document.getElementById("goCheckinBtn").addEventListener("click", () => switchTab("checkin"));
+
   document.getElementById("emotionGrid").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-emotion]");
     if (!btn) return;
@@ -601,4 +687,4 @@ updateGreeting();
 renderEmotions();
 renderTriggers();
 bind();
-renderCare();
+renderHome();
