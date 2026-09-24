@@ -18,3 +18,9 @@ services:
         sync: false
       - key: MUREKA_API_KEY
         sync: false
+      - key: SPARK_API_KEY
+        sync: false
+      - key: SPARK_API_SECRET
+        sync: false
+      - key: MOCK_SPARK
+        value: "false"

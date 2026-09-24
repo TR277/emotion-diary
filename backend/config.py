@@ -10,6 +10,10 @@ XFYUN_APPID = os.getenv("XFYUN_APPID", "")
 XFYUN_API_KEY = os.getenv("XFYUN_API_KEY", "")
 XFYUN_API_SECRET = os.getenv("XFYUN_API_SECRET", "")
 
+SPARK_API_KEY = os.getenv("SPARK_API_KEY", "")
+SPARK_API_SECRET = os.getenv("SPARK_API_SECRET", "")
+MOCK_SPARK = os.getenv("MOCK_SPARK", "false").lower() == "true"
+
 MUREKA_API_KEY = os.getenv("MUREKA_API_KEY", "")
 MUREKA_API_BASE = os.getenv("MUREKA_API_BASE", "https://api.mureka.ai")
 

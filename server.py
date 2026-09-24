@@ -6,7 +6,7 @@ from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-from backend.config import PORT, ROOT_DIR
+from backend.config import PORT, ROOT_DIR, SPARK_API_KEY, SPARK_API_SECRET
 from backend.iat_config import IAT_MIN_PCM_BYTES
 from backend.iat_ws import transcribe_pcm_on_server
 from backend.mureka_client import (
@@ -17,6 +17,7 @@ from backend.mureka_client import (
     query_instrumental,
     query_song,
 )
+from backend.spark_analyze import analyze_diary_entry
 from backend.xfyun_auth import build_iat_auth_url
 
 app = Flask(__name__, static_folder=str(ROOT_DIR), static_url_path="")
@@ -30,7 +31,13 @@ def index():
 
 @app.route("/api/health", methods=["GET"])
 def health():
-    return jsonify({"status": "ok", "service": "emotion-diary"})
+    return jsonify(
+        {
+            "status": "ok",
+            "service": "emotion-diary",
+            "spark": bool(SPARK_API_KEY and SPARK_API_SECRET),
+        }
+    )
 
 
 @app.route("/api/xfyun/auth", methods=["GET", "POST"])
@@ -63,6 +70,32 @@ def xfyun_transcribe():
         return jsonify({"error": str(exc)}), 502
     except Exception as exc:
         return jsonify({"error": f"听写失败: {exc}"}), 500
+
+
+@app.route("/api/spark/analyze", methods=["POST"])
+def spark_analyze():
+    """讯飞 Spark 情绪分析报告。"""
+    data = request.get_json(silent=True) or {}
+    emotion_id = (data.get("emotion_id") or "calm").strip()
+    try:
+        intensity = int(data.get("intensity") or 5)
+    except (TypeError, ValueError):
+        intensity = 5
+    triggers = data.get("triggers") or []
+    if not isinstance(triggers, list):
+        triggers = []
+    note = (data.get("note") or "").strip()
+
+    try:
+        report = analyze_diary_entry(
+            emotion_id=emotion_id,
+            intensity=intensity,
+            triggers=[str(t) for t in triggers],
+            note=note,
+        )
+        return jsonify(report)
+    except Exception as exc:
+        return jsonify({"error": f"分析失败: {exc}"}), 500
 
 
 @app.route("/api/mureka/generate", methods=["POST"])

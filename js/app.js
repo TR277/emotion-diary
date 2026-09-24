@@ -392,6 +392,13 @@ function switchTab(tab) {
     btn.classList.toggle("is-active", on);
     btn.setAttribute("aria-selected", on ? "true" : "false");
   });
+  // report 面板不在底栏，单独处理高亮
+  if (tab === "report") {
+    document.querySelectorAll(".nav-item").forEach((btn) => {
+      btn.classList.remove("is-active");
+      btn.setAttribute("aria-selected", "false");
+    });
+  }
   document.querySelectorAll(".panel").forEach((panel) => {
     const on = panel.id === `panel-${tab}`;
     panel.classList.toggle("is-active", on);
@@ -403,7 +410,68 @@ function switchTab(tab) {
   if (tab === "history") renderHistory();
 }
 
-function saveEntry() {
+function showReport(report) {
+  document.getElementById("reportTitle").textContent = report.title || "今日情绪简报";
+  document.getElementById("reportMood").textContent = report.mood_label || "—";
+  document.getElementById("reportSummary").textContent = report.summary || "—";
+  document.getElementById("reportTriggers").textContent = report.trigger_analysis || "—";
+  document.getElementById("reportBodyMind").textContent = report.body_mind || "—";
+  document.getElementById("reportEncourage").textContent = report.encouragement || "—";
+
+  const src = document.getElementById("reportSource");
+  if (report.is_mock || report.source === "local") {
+    src.textContent = "本地规则分析（星火暂不可用时的备用报告）";
+  } else {
+    src.textContent = "讯飞星火 Spark 情绪分析";
+  }
+
+  const scores = report.scores || {};
+  const entries = Object.entries(scores).filter(([, v]) => Number(v) > 0);
+  entries.sort((a, b) => Number(b[1]) - Number(a[1]));
+  const max = Math.max(...entries.map(([, v]) => Number(v)), 0.01);
+  const box = document.getElementById("reportScores");
+  if (!entries.length) {
+    box.innerHTML = `<div class="empty">暂无分布数据</div>`;
+  } else {
+    box.innerHTML = entries
+      .map(
+        ([name, val]) => `
+      <div class="bar-item">
+        <div class="rank-top"><span>${name}</span><em>${Math.round(Number(val) * 100)}%</em></div>
+        <div class="meter"><span style="width:${Math.max(8, (Number(val) / max) * 100)}%"></span></div>
+      </div>`
+      )
+      .join("");
+  }
+
+  const list = document.getElementById("reportSuggestions");
+  const tips = report.suggestions || [];
+  list.innerHTML = tips.length
+    ? tips.map((t) => `<li>${escapeHtml(String(t))}</li>`).join("")
+    : "<li>回到首页试试冥想、运动或音乐推荐</li>";
+
+  switchTab("report");
+}
+
+async function fetchEmotionReport(entry) {
+  const resp = await fetch(apiUrl("/api/spark/analyze"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      emotion_id: entry.emotionId,
+      intensity: entry.intensity,
+      triggers: entry.triggers,
+      note: entry.note,
+    }),
+  });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(data.error || "分析请求失败");
+  }
+  return data;
+}
+
+async function saveEntry() {
   const intensity = Number(document.getElementById("intensity").value);
   const note = document.getElementById("note").value.trim();
   const entry = {
@@ -419,14 +487,52 @@ function saveEntry() {
   saveEntries(entries);
 
   const hint = document.getElementById("saveHint");
+  const saveBtn = document.getElementById("saveBtn");
   hint.hidden = false;
-  hint.textContent = "已保存。回首页可看推荐与疗愈音乐。";
+  hint.innerHTML = `<span class="analyzing-hint"><span class="analyzing-dot"></span>正在生成讯飞星火分析报告…</span>`;
+  saveBtn.disabled = true;
+
   selectedTriggers = new Set();
   document.getElementById("note").value = "";
   renderTriggers();
   renderHome();
 
-  setTimeout(() => switchTab("home"), 450);
+  try {
+    const report = await fetchEmotionReport(entry);
+    entry.report = {
+      mood_label: report.mood_label,
+      summary: report.summary,
+      source: report.source,
+      is_mock: report.is_mock,
+    };
+    const all = loadEntries();
+    const idx = all.findIndex((e) => e.id === entry.id);
+    if (idx >= 0) {
+      all[idx] = entry;
+      saveEntries(all);
+    }
+    hint.textContent = "分析完成";
+    showReport(report);
+  } catch (err) {
+    hint.textContent = err.message || "分析失败，已保存日记";
+    // 仍给出本地兜底报告
+    showReport({
+      title: "今日情绪简报",
+      mood_label: emotionById(entry.emotionId).name,
+      summary: `已保存「${emotionById(entry.emotionId).name}」· 强度 ${entry.intensity}/10。分析服务暂时不可用，请确认 Render 已配置 SPARK_API_KEY。`,
+      trigger_analysis: entry.triggers?.length
+        ? `触发：${entry.triggers.join("、")}`
+        : "未标记触发因素。",
+      body_mind: "先照顾呼吸与身体，再处理具体压力源。",
+      suggestions: ["回首页试试冥想或运动", "听听 Spotify 放松歌单", "需要时生成 AI 疗愈音乐"],
+      encouragement: "记录本身已经是很好的一步。",
+      scores: {},
+      is_mock: true,
+      source: "local",
+    });
+  } finally {
+    saveBtn.disabled = false;
+  }
 }
 
 function renderInsight() {
@@ -521,6 +627,9 @@ function renderHistory() {
         ? `<div class="entry-triggers">${e.triggers.map((t) => `<span>${t}</span>`).join("")}</div>`
         : "";
       const note = e.note ? `<p class="entry-note">${escapeHtml(e.note)}</p>` : "";
+      const reportBit = e.report?.mood_label
+        ? `<p class="entry-note">分析：${escapeHtml(e.report.mood_label)}</p>`
+        : "";
       return `<article class="entry">
         <div class="entry-top">
           <div class="entry-mood">${emotion.name} · ${e.intensity}/10</div>
@@ -528,6 +637,7 @@ function renderHistory() {
         </div>
         ${triggers}
         ${note}
+        ${reportBit}
       </article>`;
     })
     .join("");
@@ -681,6 +791,8 @@ function bind() {
   document.getElementById("saveBtn").addEventListener("click", saveEntry);
   document.getElementById("voiceBtn").addEventListener("click", toggleVoice);
   document.getElementById("genMusicBtn").addEventListener("click", handleGenerateMusic);
+  document.getElementById("reportToHomeBtn").addEventListener("click", () => switchTab("home"));
+  document.getElementById("reportAgainBtn").addEventListener("click", () => switchTab("checkin"));
 }
 
 updateGreeting();
